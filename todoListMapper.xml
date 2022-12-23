@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<!-- 아래 빈칸인 namespace를 설정하시오 (6점) -->  
+<mapper namespace="global.scit.todoList.dao.TodoListMapper"> 
+
+	<!-- 회원가입 (5점)-->
+	<insert id="insertPerson" parameterType="Personal">
+ Insert INTO personal values
+	 (#{email}, #{passwd}, #{usrname})
+
+
+	</insert>
+	
+	<!-- 회원 정보 검색 (5점)
+	로그인한 사용자의 이메일과 비밀번호를 이용한다.
+	조회된 결과에 비밀번호는 포함되지 않아야 한다.
+	-->
+	<select id="findByEmail" parameterType="Personal" resultType="Personal">
+	select  email, usrname from personal 
+	where 
+	email = #{email}
+    and
+    passwd = #{passwd}
+
+
+
+
+
+	</select>
+	
+	
+	<!-- todo 등록 (5점) 
+	seqno는 시퀀스 객체의 값을 이용한다.
+	-->
+	<insert id="insertTodo" parameterType="Todo">
+	insert into todolist
+	(seqno, email, todo, importance, categories) 
+	values (todolist.seq.nextval, #{email}, #{todo}, #{importance}, #{categories})
+	
+	</insert>
+
+	<!--  todo 수정 (5점)
+	seqno와 email이 같은 경우 regdate, importance, categories를 수정한다.
+	regdate는 현재 시스템 날짜로 수정한다.
+	-->
+	<update id="updateTodo" parameterType="Todo">
+	update todolist
+	set
+	regdate = sysdate,
+	importance = #{importance},
+	categories = #{categories}	
+	
+	where
+		seqno = #{seqno}
+		And
+		email = #{email}
+
+
+	</update>
+
+
+	<!--  todo 삭제 (5점) 
+	seqno와 email이 같으면 데이터를 삭제한다.
+	-->
+	<delete id="deleteTodo" parameterType="map">
+	delete todolist
+	where
+		seqno = #{seqno}
+		And
+		email = #{email}
+
+
+
+	</delete>
+	
+	<!-- todo 조회 (10점) 
+	email과 categories 값을 이용하여 데이터를 조회한다.
+	categories 값의 포함 여부에 따라 조건을 달리 하는 동적쿼리를 이용해야 한다.
+	regdate는 to_char()를 이용하여 연도 4자리-월2자리-일2자리의 형태로 조회한다.
+	-->
+	<select id="selectTodoList" parameterType="map" resultType="Todo">
+	select 
+	seqno, email, to_char(regdate, 'YYYY-MM-DD') as regdate, todo, importance, categories
+	from
+		todolist
+	where
+		email = #{m}
+		
+		<if test = "c !=null">
+		And
+		categories = #{c}
+		</if>
+	order by
+		seqno Desc
+
+	</select>
+</mapper>
+
+
+
